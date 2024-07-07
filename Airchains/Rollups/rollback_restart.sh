@@ -7,7 +7,8 @@ ERR3="Failed to Init VRF"
 ERR4="Failed to unmarshal transaction"
 ERR5="Failed to Transact Verify pod"
 ERR6="VRF record is nil"
-ALL_ERRS="$ERR1|$ERR2|$ERR3|$ERR4|$ERR5|$ERR6"
+ERR7="Failed to Validate VRF"
+ALL_ERRS="$ERR1|$ERR2|$ERR3|$ERR4|$ERR5|$ERR6|$ERR7"
 
 function rollback_restart() {
     echo "Stopping..."
