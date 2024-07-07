@@ -10,7 +10,7 @@ ERR6="VRF record is nil"
 ALL_ERRS="$ERR1|$ERR2|$ERR3|$ERR4|$ERR5|$ERR6"
 
 function rollback_restart() {
-    echo "Error detected, stopping..."
+    echo "Stopping..."
     systemctl stop $SERV_NAME
     cd /root/tracks/
     roll_times=$(( RANDOM % 3 + 1 ))
@@ -28,8 +28,10 @@ while true; do
     now_ts=$(date +"%s")
     wait_time=$((now_ts - last_log_ts))
     if echo "$log_lines" | grep -Eq "$ALL_ERRS"; then
+	echo "Error detected!"
         rollback_restart
     elif [ $wait_time -gt 600 ]; then
+	"Long wait!"
         rollback_restart
     else
         echo "listening......"
