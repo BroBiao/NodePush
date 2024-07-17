@@ -32,7 +32,7 @@ while true; do
 	echo "Error detected!"
         rollback_restart
     elif [ $wait_time -gt 600 ]; then
-	"Long wait!"
+	echo "Long wait!"
         rollback_restart
     else
         echo "listening......"
