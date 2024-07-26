@@ -13,7 +13,7 @@ ALL_ERRS="$ERR1|$ERR2|$ERR3|$ERR4|$ERR5|$ERR6|$ERR7"
 ACCOUNT_TOKEN='your_dicord_token'
 CHANNEL_ID='1238910689188511835'
 MSG_TEXT='$faucet airxxxxxxxxxxxxxxxxxxxxxxxxx'
-FUND_ERR="Error in VerifyPod transaction Error=\"error code: '5' msg: 'spendable balance"
+FUND_ERR="Error=\"error code: '5' msg: 'spendable balance"
 
 function rollback_restart() {
     echo "Stopping..."
@@ -59,14 +59,15 @@ while true; do
     last_log_ts=$(( $(journalctl --no-pager --output=json -n 1 -u $SERV_NAME | jq -r '.["__REALTIME_TIMESTAMP"]') / 1000000 ))
     now_ts=$(date +"%s")
     wait_time=$((now_ts - last_log_ts))
-    if echo "$log_lines" | grep -Eq "$ALL_ERRS"; then
-	echo "Error detected!"
+    if echo "$log_lines" | grep -q "$FUND_ERR"; then
+        echo "Insufficient funds! Calling Discord faucet..."
+        send_discord_message "$ACCOUNT_TOKEN" "$CHANNEL_ID" "$MSG_TEXT"
+        systemctl restart $SERV_NAME
+    elif echo "$log_lines" | grep -Eq "$ALL_ERRS"; then
+        echo "Error detected!"
         rollback_restart
-    elif echo "$log_lines" | grep -q "$FUND_ERR"; then
-	echo "Insufficient funds! Calling Discord faucet..."
-	send_discord_message "$ACCOUNT_TOKEN" "$CHANNEL_ID" "$MSG_TEXT"
     elif [ $wait_time -gt 600 ]; then
-	echo "Long wait!"
+        echo "Long wait!"
         rollback_restart
     else
         echo "listening......"
