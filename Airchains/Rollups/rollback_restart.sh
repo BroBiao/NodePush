@@ -10,6 +10,8 @@ ERR6="VRF record is nil"
 ERR7="Failed to Validate VRF"
 ALL_ERRS="$ERR1|$ERR2|$ERR3|$ERR4|$ERR5|$ERR6|$ERR7"
 
+TX_ERR="Failed to get transaction hash"
+
 ACCOUNT_TOKEN='your_dicord_token'
 CHANNEL_ID='1238910689188511835'
 MSG_TEXT='$faucet airxxxxxxxxxxxxxxxxxxxxxxxxx'
@@ -59,6 +61,7 @@ while true; do
     last_log_ts=$(( $(journalctl --no-pager --output=json -n 1 -u $SERV_NAME | jq -r '.["__REALTIME_TIMESTAMP"]') / 1000000 ))
     now_ts=$(date +"%s")
     wait_time=$((now_ts - last_log_ts))
+    tx_err_count=$(echo "$log_lines" | grep -c "$TX_ERR")
     if echo "$log_lines" | grep -q "$FUND_ERR"; then
         echo "Insufficient funds! Calling Discord faucet..."
         send_discord_message "$ACCOUNT_TOKEN" "$CHANNEL_ID" "$MSG_TEXT"
@@ -69,6 +72,9 @@ while true; do
     elif [ $wait_time -gt 600 ]; then
         echo "Long wait!"
         rollback_restart
+    elif [ $tx_err_count -ge 3 ]; then
+        echo "Failed to get tx hash, restarting"
+        systemctl restart $SERV_NAME
     else
         echo "listening......"
     fi
