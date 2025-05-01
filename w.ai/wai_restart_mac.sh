@@ -6,6 +6,8 @@ SERV_NAME=$(launchctl list | grep application.ai.wombo.wai | awk '{print $3}')
 LOG_PATH="/Users/debiao/.wombo/cache/client.log"
 MAX_SECONDS=100
 
+export PATH="$($SHELL -lc 'echo $PATH')"
+
 now_time=$(date "+%m-%d %H:%M:%S")
 log_modtime=$(stat -f %m "$LOG_PATH")
 now_ts=$(date +%s)
