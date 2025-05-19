@@ -1,18 +1,21 @@
 #!/bin/bash
 
 APP_NAME="w.ai"
-SERV_NAME="wai.service"
-LOG_PATH="/home/debiao/.wombo/cache/client.log"
-MAX_SECONDS=300
+LOG_PATH="/home/$(whoami)/.wombo/cache/logs/ai.log"
+MAX_SECONDS=100
+
+export DISPLAY=$(who | awk -v user="$(whoami)" '$1 == user && $2 ~ /^:[0-9]+$/ {last_display = $2} END {if (last_display) print last_display}')
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
 
 now_time=$(date "+%m-%d %H:%M:%S")
-log_modtime=$(tail -n 1 $LOG_PATH | cut -d ',' -f1 | xargs -I {} date -d "{}" +%s)
+log_modtime=$(stat -c %Y "$LOG_PATH")
 now_ts=$(date +%s)
 time_diff=$((now_ts - log_modtime))
 if [ $time_diff -gt $MAX_SECONDS ]; then
     echo "$now_time No new logs for $time_diff seconds, trying to restart..."
-    /usr/bin/systemctl restart $SERV_NAME
+    pkill $APP_NAME
+    sleep 10
+    gtk-launch $APP_NAME
 else
     echo "$now_time Everything is fine..."
 fi
-

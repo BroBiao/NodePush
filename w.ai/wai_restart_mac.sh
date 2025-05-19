@@ -3,7 +3,7 @@
 APP_NAME="w ai"
 APP_PATH="/Applications/w ai.app/Contents/MacOS/w ai"
 SERV_NAME=$(launchctl list | grep application.ai.wombo.wai | awk '{print $3}')
-LOG_PATH="/Users/debiao/.wombo/cache/client.log"
+LOG_PATH="/Users/$(whoami)/.wombo/cache/logs/ai.log"
 MAX_SECONDS=100
 
 export PATH="$($SHELL -lc 'echo $PATH')"
