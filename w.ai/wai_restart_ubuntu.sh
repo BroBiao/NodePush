@@ -13,8 +13,10 @@ now_ts=$(date +%s)
 time_diff=$((now_ts - log_modtime))
 if [ $time_diff -gt $MAX_SECONDS ]; then
     echo "$now_time No new logs for $time_diff seconds, trying to restart..."
-    pkill $APP_NAME
-    sleep 10
+    if pgrep -x $APP_NAME > /dev/null; then
+        kill -- -$(ps -o pgid= -p $(pgrep -o $APP_NAME) | tr -d ' ')
+        sleep 10
+    fi
     gtk-launch $APP_NAME
 else
     echo "$now_time Everything is fine..."
